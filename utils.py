@@ -30,9 +30,10 @@ def create_bmi_class(cardio):
 # the code was sourced from statology.org
 def set_pressure_category(cardio):
     conditions = [
-        (cardio['ap_hi'] <= 120) & (cardio['ap_lo'] <= 80),
+        (cardio['ap_hi'] >= 90) & (cardio['ap_hi'] <= 120) & (
+            cardio['ap_lo'] <= 80) & (cardio['ap_lo'] >= 60),
         ((cardio['ap_hi'] >= 120) & (cardio['ap_hi'] <= 129)) & (
-            cardio['ap_lo'] <= 80),
+            cardio['ap_lo'] <= 80) & (cardio['ap_lo'] >= 60),
         ((cardio['ap_hi'] >= 130) & (cardio['ap_hi'] <= 139)) & (
             (cardio['ap_lo'] <= 90) & (cardio['ap_lo'] >= 80)),
         ((cardio['ap_hi'] >= 140) & (cardio['ap_hi'] <= 180)) & (
@@ -105,4 +106,30 @@ def plot_gender_distribution(cardio):
     fig = plt.pie(cardio[cardio['cardio'] == 1]['gender'].value_counts(), autopct='%1.2f%%', labels=['women', 'men'],
                   colors=['darkslategray', 'powderblue'], explode=[0.02, 0.02], startangle=90)
     plt.title("Gender distribution of positively diagnosed patients", fontsize=10)
+    return fig
+
+
+def plot_cardio_subplots(filtered_cardio):
+    fig, axes = plt.subplots(3, 2, dpi=200, figsize=(18, 12))
+    axes = axes.flatten()
+    hues = ['cholesterol', 'gluc', 'smoke', 'alco', 'active', 'bmi-class']
+    palettes = [['darkslategrey', 'lightgreen', 'cadetblue'], ['darkslategrey', 'powderblue', 'cadetblue'], ['darkslategrey', 'powderblue'],
+                ['darkslategrey', 'cadetblue'], ['powderblue', 'darkslategrey'], ['teal', 'darkslategrey', 'cadetblue', 'powderblue', 'lightgreen']]
+    titles = ["Cholesterol levels in patients with diagnosed cardiovascular diseases (CVDs)", "Glucose levels in patients with diagnosed cardiovascular diseases (CVDs)",
+              "Proportion of smokers and non-smokers in CVDs-diagnosed patients", "Alcohol consumption among patients diagnosed with CVDs",
+              "Physical activity levels in patients diagnosed with CVDs", "BMI classes among CVDs-diagnosed patients"]
+    legends = [['normal', 'above normal', 'well above normal'], ['normal', 'above normal', 'well above normal'], ['Non-smoker', 'Smoker'], ['Non-consumer', 'Consumer'],
+               ['Non-active', 'Active'], ['Normal', 'Overweight', 'Obesity(class I)', 'Obesity(class II)', 'Obesity(class III)']]
+
+    for i, (hue, palette, title, legend) in enumerate(zip(hues, palettes, titles, legends)):
+        sns.countplot(filtered_cardio[filtered_cardio['cardio'] == 1],
+                      x='cardio', hue=hue, palette=palette, ax=axes[i])
+        axes[i].set(title=title)
+        axes[i].legend(labels=legend)
+
+        for j in axes[i].containers:
+            axes[i].bar_label(j,)
+
+    plt.tight_layout()
+    plt.show()
     return fig
