@@ -27,6 +27,16 @@ def create_bmi_class(cardio):
                   labels=['normal range', 'overweight', 'obese(class I)', 'obese (class II)', 'obese (class III)'])
 
 
+def create_dataset(filtered_cardio):
+    new_cardio = filtered_cardio.copy()
+    new_cardio_1 = new_cardio.drop(
+        ['ap_hi', 'ap_lo', 'height', 'weight', 'bmi'], axis=1)
+    new_cardio_2 = new_cardio.drop(
+        ['bmi_class', 'pressure_category', 'height', 'weight'], axis=1)
+
+    return pd.get_dummies(new_cardio_1, columns=['bmi_class', 'pressure_category', 'gender'], drop_first=True), pd.get_dummies(new_cardio_2, columns=['gender'], drop_first=True)
+
+
 # the code was sourced from statology.org
 def set_pressure_category(cardio):
     conditions = [
@@ -112,7 +122,7 @@ def plot_gender_distribution(cardio):
 def plot_cardio_subplots(filtered_cardio):
     fig, axes = plt.subplots(3, 2, dpi=200, figsize=(18, 12))
     axes = axes.flatten()
-    hues = ['cholesterol', 'gluc', 'smoke', 'alco', 'active', 'bmi-class']
+    hues = ['cholesterol', 'gluc', 'smoke', 'alco', 'active', 'bmi_class']
     palettes = [['darkslategrey', 'lightgreen', 'cadetblue'], ['darkslategrey', 'powderblue', 'cadetblue'], ['darkslategrey', 'powderblue'],
                 ['darkslategrey', 'cadetblue'], ['powderblue', 'darkslategrey'], ['teal', 'darkslategrey', 'cadetblue', 'powderblue', 'lightgreen']]
     titles = ["Cholesterol levels in patients with diagnosed cardiovascular diseases (CVDs)", "Glucose levels in patients with diagnosed cardiovascular diseases (CVDs)",
