@@ -29,12 +29,12 @@ def create_bmi_class(cardio):
 
 def create_dataset(filtered_cardio):
     new_cardio = filtered_cardio.copy()
-    new_cardio_1 = new_cardio.drop(
+    cardio_1 = new_cardio.drop(
         ['ap_hi', 'ap_lo', 'height', 'weight', 'bmi'], axis=1)
-    new_cardio_2 = new_cardio.drop(
+    cardio_2 = new_cardio.drop(
         ['bmi_class', 'pressure_category', 'height', 'weight'], axis=1)
 
-    return pd.get_dummies(new_cardio_1, columns=['bmi_class', 'pressure_category', 'gender'], drop_first=True), pd.get_dummies(new_cardio_2, columns=['gender'], drop_first=True)
+    return pd.get_dummies(cardio_1, columns=['bmi_class', 'pressure_category', 'gender'], drop_first=True), pd.get_dummies(cardio_2, columns=['gender'], drop_first=True)
 
 
 # the code was sourced from statology.org
@@ -69,53 +69,47 @@ def plot_corr_matrix(filtered_cardio):
     return fig
 
 
-def plot_presence_absence(cardio):
-    fig = plt.pie(cardio['cardio'].value_counts(), autopct='%1.2f%%', labels=['presence', 'absence'],
-                  colors=['darkslategray', 'powderblue'], explode=[0.02, 0.02], startangle=90)
-    plt.title(
-        "Presence or absence of cardiovascular disease in patients", fontsize=10)
+def plot_eda_pie(cardio):
+    fig, axes = plt.subplots(2, 2, dpi=200, figsize=(18, 9))
+    axes = axes.flatten()
+
+    dataframes = [cardio['cardio'].value_counts(), cardio['cholesterol'].value_counts(),
+                  cardio['smoke'].value_counts(), cardio[cardio['cardio'] == 1]['gender'].value_counts()]
+    labels = [['presence', 'absence'], ['normal', 'above normal',
+                                        'well above normal'], ['Non-smokers', 'smokers'], ['women', 'men']]
+    colors = [['darkslategray', 'powderblue'], ['darkslategrey', 'cadetblue', 'powderblue'],
+              ['darkslategray', 'powderblue'], ['darkslategray', 'powderblue']]
+    explodes = [[0.02, 0.02], [0.02, 0.02, 0.02], [0.02, 0.02], [0.02, 0.02]]
+    titles = ["Presence or absence of cardiovascular disease in patients", "Cholesterol levels in patients",
+              "Proportion of smokers in patients", "Gender distribution of positively diagnosed patients"]
+
+    for i, (data, label, color, explode, title) in enumerate(zip(dataframes, labels, colors, explodes, titles)):
+        axes[i].pie(data, autopct='%1.2f%%', labels=label,
+                    colors=color, explode=explode)
+        axes[i].set(title=title)
+
+    plt.tight_layout()
+    plt.show()
     return fig
 
 
-def plot_cholesterol_levels(cardio):
-    fig = plt.pie(cardio['cholesterol'].value_counts(), labels=['normal', 'above normal', 'well above normal'], explode=[0.02, 0.02, 0.02],
-                  autopct='%1.1f%%', colors=['darkslategrey', 'cadetblue', 'powderblue'])
-    plt.title("Cholesterol levels in patients", fontsize=10, loc='center')
-    return fig
+def plot_eda_hist(cardio):
+    fig, axes = plt.subplots(1, 3, dpi=200, figsize=(18, 6))
+    axes = axes.flatten()
 
+    dataframes = [[i/365 for i in cardio['age']],
+                  cardio['weight'], cardio['height']]
+    colors = ['powderblue', 'darkslategrey', 'cadetblue']
 
-def plot_age_distribution(cardio):
-    fig = sns.histplot(data=[i/365 for i in cardio['age']],
-                       bins=100, color='powderblue')
-    plt.title("Age distribution of patients", fontsize=10, loc='center')
-    plt.xlabel("Age(years)")
-    return fig
+    titles = ["Age distribution of patients",
+              "Weight distribution of patients", "Height distribution of patients"]
 
+    for i, (data, color, title) in enumerate(zip(dataframes, colors, titles)):
+        sns.histplot(data, bins=100, color=color, ax=axes[i])
+        axes[i].set(title=title)
 
-def plot_proportion_smokers(cardio):
-    fig = plt.pie(cardio['smoke'].value_counts(), labels=['Non-smokers', 'smokers'], explode=[0.02, 0.02], autopct='%1.1f%%',
-                  colors=['darkslategray', 'powderblue'])
-    plt.title("Proportion of smokers in patients", fontsize=10, loc='center')
-    return fig
-
-
-def plot_weight_distribution(cardio):
-    fig = sns.histplot(cardio['weight'], bins=100, color='powderblue')
-    plt.title("Weight distribution of patients", fontsize=10, loc='center')
-    return fig
-
-
-def plot_height_distribution(cardio):
-    fig = sns.displot(cardio['height'], bins=100, color='cadetblue')
-    plt.title("Height distribution of patients", fontsize=10, loc='center')
-    plt.xlabel("Height(cm)")
-    return fig
-
-
-def plot_gender_distribution(cardio):
-    fig = plt.pie(cardio[cardio['cardio'] == 1]['gender'].value_counts(), autopct='%1.2f%%', labels=['women', 'men'],
-                  colors=['darkslategray', 'powderblue'], explode=[0.02, 0.02], startangle=90)
-    plt.title("Gender distribution of positively diagnosed patients", fontsize=10)
+    plt.tight_layout()
+    plt.show()
     return fig
 
 
