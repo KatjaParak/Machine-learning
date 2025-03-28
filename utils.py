@@ -36,8 +36,9 @@ def create_dataset(filtered_cardio):
 
     return pd.get_dummies(cardio_1, columns=['bmi_class', 'pressure_category', 'gender'], drop_first=True), pd.get_dummies(cardio_2, columns=['gender'], drop_first=True)
 
-
 # the code was sourced from statology.org
+
+
 def set_pressure_category(cardio):
     conditions = [
         (cardio['ap_hi'] >= 90) & (cardio['ap_hi'] <= 120) & (
@@ -58,15 +59,6 @@ def set_pressure_category(cardio):
 
     filtered_cardio = cardio[cardio['pressure_category'] != '0']
     return filtered_cardio
-
-
-def plot_corr_matrix(filtered_cardio):
-    filtered_cardio = pd.get_dummies(filtered_cardio).corr()
-    plt.figure(figsize=(10, 8))
-    fig = sns.heatmap(filtered_cardio, linewidths=.2, annot=True, annot_kws={
-                      'size': 6}, fmt='.1f', cmap='crest')
-    plt.title("Correlation coefficients")
-    return fig
 
 
 def plot_eda_pie(cardio):
@@ -136,4 +128,13 @@ def plot_cardio_subplots(filtered_cardio):
 
     plt.tight_layout()
     plt.show()
+    return fig
+
+
+def plot_corr_matrix(filtered_cardio):
+    filtered_cardio = pd.get_dummies(filtered_cardio).corr()
+    plt.figure(figsize=(10, 8))
+    fig = sns.heatmap(filtered_cardio, linewidths=.2, annot=True, annot_kws={
+                      'size': 6}, fmt='.1f', cmap='crest')
+    plt.title("Correlation coefficients")
     return fig
